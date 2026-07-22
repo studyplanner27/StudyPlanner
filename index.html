@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雲端同步溫習打卡與專注空間</title>
+    <title>每日溫習打卡與專注空間</title>
     <style>
         :root {
             --bg-color: #f4f6f8;
@@ -15,6 +15,7 @@
             --text-secondary: #666666;
             --border: #e0e0e0;
             --success: #2ecc71;
+            --success-light: #eafaf1;
         }
 
         body {
@@ -29,7 +30,7 @@
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 1100px;
         }
 
         header {
@@ -66,11 +67,11 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
         }
 
-        @media(max-width: 600px) {
+        @media(max-width: 800px) {
             .dashboard-grid { grid-template-columns: 1fr; }
         }
 
@@ -102,10 +103,13 @@
 
         .btn:hover { opacity: 0.9; }
         .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-accent { background-color: var(--accent); }
+        .btn-success { background-color: var(--success); }
+        .btn-google { background-color: #db4437; }
 
         form {
             display: grid;
-            grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr auto;
+            grid-template-columns: 1.2fr 1.8fr 1.2fr 1.2fr 1fr auto;
             gap: 8px;
             align-items: center;
         }
@@ -123,24 +127,59 @@
             box-sizing: border-box;
         }
 
+        .tasks-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media(max-width: 800px) {
+            .tasks-container { grid-template-columns: 1fr; }
+        }
+
+        .task-column {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 250px;
+        }
+
+        .task-column h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .task-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--border);
+            padding: 10px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-
-        .task-item:last-child { border-bottom: none; }
 
         .task-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+            font-size: 0.9rem;
         }
 
-        .task-info.completed span {
+        .completed-col .task-item {
+            background: var(--success-light);
+            border-color: #d4efdf;
+        }
+
+        .completed-col span {
             text-decoration: line-through;
             color: var(--text-secondary);
         }
@@ -148,18 +187,18 @@
         .tag {
             background: var(--primary-light);
             color: var(--primary);
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
         }
 
         .date-tag, .duration-tag {
             background: #f0f0f0;
             color: var(--text-secondary);
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         #alert-modal {
@@ -183,7 +222,7 @@
         }
 
         .timer-display {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
             color: var(--accent);
             margin: 15px 0;
@@ -195,15 +234,69 @@
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
+
+        /* 登入遮罩畫面 */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-box h2 { color: var(--primary); margin-top: 0; }
+        .auth-box input { margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="auth-overlay">
+    <div class="auth-box">
+        <h2>每日溫習打卡與專注空間</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">請登入以存取你的雲端空間</p>
+        
+        <input type="email" id="auth-email" placeholder="電子郵件地址">
+        <input type="password" id="auth-password" placeholder="密碼 (最少6位)">
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" style="margin-top:0;" onclick="handleLogin()">登入</button>
+            <button class="btn btn-success" style="margin-top:0;" onclick="handleSignUp()">註冊</button>
+        </div>
+        
+        <div style="margin: 15px 0; color: var(--text-secondary); font-size: 0.85rem;">或</div>
+        
+        <button class="btn btn-google" style="margin-top:0;" onclick="handleGoogleLogin()">使用 Google 帳戶登入</button>
+        <p id="auth-error" style="color: var(--accent); font-size: 0.85rem; margin-top: 15px;"></p>
+    </div>
+</div>
+
+<div class="container" id="main-app" style="display: none;">
     <header>
-        <h1>雲端同步溫習打卡與專注空間</h1>
-        <p>保持清晰頭腦，每日累積微小進步，直達 2027年4月8日！</p>
+        <h1>每日溫習打卡與專注空間</h1>
+        <p>雲端同步身份與科目，直達 2027年4月8日！</p>
+        <div style="margin-top: 10px;">
+            <span id="user-email-display" style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 10px;"></span>
+            <button class="btn btn-accent" style="width: auto; padding: 4px 10px; font-size: 0.8rem; margin-top:0;" onclick="handleLogout()">登出</button>
+        </div>
     </header>
+
+    <div class="card" id="user-setup-card">
+        <h2>⚙️ 自訂科目設定</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px;">
+            <input type="text" id="custom-subjects-input" placeholder="自訂科目，用逗號隔開 (例: Chin,Eng,Math,CS,Bio,Geog)" value="Chin,Eng,Math,CS,Bio,Geog" style="flex: 1;">
+            <button class="btn" style="width: auto; margin-top:0;" onclick="saveUserSubjectsCloud()">儲存科目設定</button>
+        </div>
+    </div>
 
     <div class="dashboard-grid">
         <div class="card" style="margin-bottom:0;">
@@ -221,6 +314,14 @@
                 <p id="checkin-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);"></p>
             </div>
         </div>
+
+        <div class="card" style="margin-bottom:0;">
+            <h2>專注計時器</h2>
+            <div style="text-align: center; margin-top: 15px; display: flex; gap: 8px;">
+                <button class="btn btn-accent" style="margin-top:0;" onclick="openCustomTimer(25)">25分專注</button>
+                <button class="btn btn-success" style="margin-top:0;" onclick="openCustomTimer(5)">5分休息</button>
+            </div>
+        </div>
     </div>
 
     <div class="card" style="margin-top: 20px;">
@@ -228,12 +329,6 @@
         <form id="planner-form" onsubmit="addPlan(event)">
             <select id="subject-select" required>
                 <option value="" disabled selected>選擇科目</option>
-                <option value="Chin">Chin</option>
-                <option value="Eng">Eng</option>
-                <option value="Math">Math</option>
-                <option value="CS">CS</option>
-                <option value="Bio">Bio</option>
-                <option value="Geog">Geog</option>
             </select>
             <input type="text" id="task-detail" placeholder="詳細內容（例：做Past Paper）" required>
             <input type="date" id="task-date" required>
@@ -244,8 +339,17 @@
     </div>
 
     <div class="card">
-        <h2>所有溫習任務</h2>
-        <div id="task-list">載入中...</div>
+        <h2>溫習任務管理</h2>
+        <div class="tasks-container">
+            <div class="task-column">
+                <h3>📌 進行中 / 未完成任務 <span id="pending-count" class="tag">0</span></h3>
+                <div id="pending-task-list">載入中...</div>
+            </div>
+            <div class="task-column completed-col">
+                <h3>✅ 已完成任務 <span id="completed-count" class="tag" style="background: var(--success); color: white;">0</span></h3>
+                <div id="completed-task-list">載入中...</div>
+            </div>
+        </div>
     </div>
 
     <div class="card">
@@ -256,50 +360,148 @@
 
 <div id="alert-modal">
     <div class="modal-content">
-        <h2 id="modal-title" style="color: var(--accent);">溫習時間到！</h2>
-        <p id="modal-desc">距離 2027年4月8日仲有 <span id="modal-countdown"></span> 日</p>
-        <div class="timer-display" id="timer-display">05:00</div>
+        <h2 id="modal-title" style="color: var(--accent);">專注計時器</h2>
+        <p id="modal-desc">保持高效，累積微小進步！</p>
+        <div class="timer-display" id="timer-display">25:00</div>
         <div style="display: flex; gap: 10px;">
             <button class="btn" id="pause-btn" onclick="toggleTimer()">暫停</button>
-            <button class="btn" style="background-color: var(--text-secondary);" onclick="closeModal()">關閉 / 休息</button>
+            <button class="btn" style="background-color: var(--text-secondary);" onclick="closeModal()">關閉 / 結束</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // 🌟 請把你在 Firebase 複製的設定貼在下方取代這幾行 🌟
     const firebaseConfig = {
-       apiKey: "AIzaSyCM-s3IMSyr4q2IJmy074vAL9zd6jdrSR8",
-       authDomain: "studyplanner-9ceb6.firebaseapp.com",
-       projectId: "studyplanner-9ceb6",
-       storageBucket: "studyplanner-9ceb6.firebasestorage.app",
-       messagingSenderId: "157259076638",
-       appId: "1:157259076638:web:6dbfe4b2e4f01534920a0f"
+          apiKey: "AIzaSyCM-s3IMSyr4q2IJmy074vAL9zd6jdrSR8",
+          authDomain: "studyplanner-9ceb6.firebaseapp.com",
+          projectId: "studyplanner-9ceb6",
+          storageBucket: "studyplanner-9ceb6.firebasestorage.app",
+          messagingSenderId: "157259076638",
+          appId: "1:157259076638:web:6dbfe4b2e4f01534920a0f"
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
 
     const targetDate = new Date('2027-04-08T00:00:00');
+    let currentUserUid = null;
     let tasks = [];
     let checkIns = {};
     
     let timerInterval = null;
-    let timeLeft = 300;
+    let timeLeft = 1500;
     let isTimerRunning = false;
-    let activeTaskKey = null;
 
-    window.onload = async function() {
+    window.onload = function() {
         updateCountdown();
         document.getElementById('task-date').value = getTodayString();
-        
-        await loadDataFromCloud();
-        
-        setInterval(checkTaskTimeAlert, 30000);
         setInterval(updateCountdown, 60000);
+
+        // 監聽用戶登入狀態
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-email-display').innerText = `登入帳戶: ${user.email}`;
+                
+                await loadUserProfileCloud();
+                await loadDataFromCloud();
+            } else {
+                currentUserUid = null;
+                document.getElementById('auth-overlay').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+            }
+        });
+    }
+
+    // 帳戶操作
+    window.handleSignUp = async function() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            document.getElementById('auth-error').innerText = "註冊失敗: " + error.message;
+        }
+    }
+
+    window.handleLogin = async function() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            document.getElementById('auth-error').innerText = "登入失敗: " + error.message;
+        }
+    }
+
+    window.handleGoogleLogin = async function() {
+        try {
+            await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+            document.getElementById('auth-error').innerText = "Google 登入失敗: " + error.message;
+        }
+    }
+
+    window.handleLogout = async function() {
+        await signOut(auth);
+    }
+
+    // 儲存與載入用戶設定 (每個用戶獨立路徑)
+    window.saveUserSubjectsCloud = async function() {
+        if (!currentUserUid) return;
+        const subjectsStr = document.getElementById('custom-subjects-input').value.trim() || "Chin,Eng,Math";
+
+        try {
+            await setDoc(doc(db, "users", currentUserUid), {
+                subjects: subjectsStr,
+                updatedAt: new Date().toISOString()
+            });
+            updateSubjectDropdown(subjectsStr);
+            alert("科目設定已成功同步上雲端！");
+        } catch (e) {
+            console.error("儲存失敗", e);
+        }
+    }
+
+    async function loadUserProfileCloud() {
+        let defaultSubjects = "Chin,Eng,Math,CS,Bio,Geog";
+        try {
+            const userSnap = await getDoc(doc(db, "users", currentUserUid));
+            if (userSnap.exists() && userSnap.data().subjects) {
+                defaultSubjects = userSnap.data().subjects;
+            }
+        } catch (e) {
+            console.error("載入設定失敗", e);
+        }
+
+        document.getElementById('custom-subjects-input').value = defaultSubjects;
+        updateSubjectDropdown(defaultSubjects);
+    }
+
+    function updateSubjectDropdown(subjectsStr) {
+        const select = document.getElementById('subject-select');
+        const currentVal = select.value;
+        select.innerHTML = '<option value="" disabled selected>選擇科目</option>';
+        
+        subjectsStr.split(',').forEach(sub => {
+            const trimmed = sub.trim();
+            if(trimmed) {
+                const opt = document.createElement('option');
+                opt.value = trimmed;
+                opt.innerText = trimmed;
+                select.appendChild(opt);
+            }
+        });
+        if(currentVal) select.value = currentVal;
     }
 
     function updateCountdown() {
@@ -318,15 +520,17 @@
         return `${year}-${month}-${day}`;
     }
 
+    // 資料讀取與同步 (使用子集合令每個用戶擁有自己獨立嘅 tasks 同 checkins)
     async function loadDataFromCloud() {
+        if (!currentUserUid) return;
         try {
-            const taskSnapshot = await getDocs(collection(db, "tasks"));
+            const taskSnapshot = await getDocs(collection(db, "users", currentUserUid, "tasks"));
             tasks = [];
             taskSnapshot.forEach((doc) => {
                 tasks.push({ id: doc.id, ...doc.data() });
             });
 
-            const checkinSnapshot = await getDocs(collection(db, "checkins"));
+            const checkinSnapshot = await getDocs(collection(db, "users", currentUserUid, "checkins"));
             checkIns = {};
             checkinSnapshot.forEach((doc) => {
                 checkIns[doc.id] = doc.data().checked;
@@ -357,10 +561,11 @@
     }
 
     window.toggleCheckIn = async function() {
+        if (!currentUserUid) return;
         const todayStr = getTodayString();
         checkIns[todayStr] = true;
         try {
-            await setDoc(doc(db, "checkins", todayStr), { checked: true });
+            await setDoc(doc(db, "users", currentUserUid, "checkins", todayStr), { checked: true });
             checkTodayCheckIn();
             renderHistory();
         } catch (e) {
@@ -388,6 +593,8 @@
 
     window.addPlan = async function(event) {
         event.preventDefault();
+        if (!currentUserUid) return;
+
         const subject = document.getElementById('subject-select').value;
         const detail = document.getElementById('task-detail').value;
         const date = document.getElementById('task-date').value;
@@ -413,7 +620,7 @@
         };
 
         try {
-            await setDoc(doc(db, "tasks", taskId), newTask);
+            await setDoc(doc(db, "users", currentUserUid, "tasks", taskId), newTask);
             tasks.push({ id: taskId, ...newTask });
             renderTasks();
             document.getElementById('planner-form').reset();
@@ -425,12 +632,13 @@
     }
 
     window.toggleTask = async function(id) {
+        if (!currentUserUid) return;
         const task = tasks.find(t => t.id === id);
         if (!task) return;
         const newCompletedStatus = !task.completed;
 
         try {
-            await updateDoc(doc(db, "tasks", id), { completed: newCompletedStatus });
+            await updateDoc(doc(db, "users", currentUserUid, "tasks", id), { completed: newCompletedStatus });
             tasks = tasks.map(t => t.id === id ? { ...t, completed: newCompletedStatus } : t);
             renderTasks();
         } catch (e) {
@@ -439,8 +647,9 @@
     }
 
     window.deleteTask = async function(id) {
+        if (!currentUserUid) return;
         try {
-            await deleteDoc(doc(db, "tasks", id));
+            await deleteDoc(doc(db, "users", currentUserUid, "tasks", id));
             tasks = tasks.filter(t => t.id !== id);
             renderTasks();
         } catch (e) {
@@ -449,67 +658,59 @@
     }
 
     function renderTasks() {
-        const taskList = document.getElementById('task-list');
-        taskList.innerHTML = '';
+        const pendingList = document.getElementById('pending-task-list');
+        const completedList = document.getElementById('completed-task-list');
+        
+        pendingList.innerHTML = '';
+        completedList.innerHTML = '';
 
-        if (tasks.length === 0) {
-            taskList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">暫時未有溫習計劃，請在上方新增！</p>';
-            return;
+        const pendingTasks = tasks.filter(t => !t.completed);
+        const completedTasks = tasks.filter(t => t.completed);
+
+        document.getElementById('pending-count').innerText = pendingTasks.length;
+        document.getElementById('completed-count').innerText = completedTasks.length;
+
+        if (pendingTasks.length === 0) {
+            pendingList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; font-size: 0.9rem;">暫無進行中任務</p>';
+        } else {
+            pendingTasks.forEach(task => {
+                pendingList.appendChild(createTaskElement(task));
+            });
         }
 
-        tasks.sort((a, b) => {
-            if (a.date !== b.date) return a.date.localeCompare(b.date);
-            return a.time.localeCompare(b.time);
-        });
-
-        tasks.forEach(task => {
-            const div = document.createElement('div');
-            div.className = 'task-item';
-            div.innerHTML = `
-                <div class="task-info ${task.completed ? 'completed' : ''}">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTask('${task.id}')">
-                    <span class="tag">${task.subject}</span>
-                    <span class="date-tag">📅 ${task.date}</span>
-                    <span class="duration-tag">⏰ ${task.time} ~ ${task.endTime} (${task.duration}分鐘)</span>
-                    <span><strong>${task.detail}</strong></span>
-                </div>
-                <button class="btn" style="width: auto; padding: 5px 10px; background-color: var(--accent); margin-top:0;" onclick="deleteTask('${task.id}')">刪除</button>
-            `;
-            taskList.appendChild(div);
-        });
+        if (completedTasks.length === 0) {
+            completedList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; font-size: 0.9rem;">暫無已完成任務</p>';
+        } else {
+            completedTasks.forEach(task => {
+                completedList.appendChild(createTaskElement(task));
+            });
+        }
     }
 
-    function checkTaskTimeAlert() {
-        const now = new Date();
-        const currentDateStr = getTodayString();
-        const currentHours = String(now.getHours()).padStart(2, '0');
-        const currentMinutes = String(now.getMinutes()).padStart(2, '0');
-        const currentTimeStr = `${currentHours}:${currentMinutes}`;
-
-        tasks.forEach(task => {
-            const taskKey = `${task.date}_${task.time}_${task.id}`;
-            if (task.date === currentDateStr && task.time === currentTimeStr && !task.completed && activeTaskKey !== taskKey) {
-                activeTaskKey = taskKey;
-                showAlertModal(task);
-            }
-        });
+    function createTaskElement(task) {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.innerHTML = `
+            <div class="task-info">
+                <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTask('${task.id}')">
+                <span class="tag">${task.subject}</span>
+                <span class="date-tag">📅 ${task.date}</span>
+                <span class="duration-tag">⏰ ${task.time}~${task.endTime}</span>
+                <span><strong>${task.detail}</strong></span>
+            </div>
+            <button class="btn" style="width: auto; padding: 4px 8px; font-size: 0.8rem; background-color: var(--accent); margin-top:0;" onclick="deleteTask('${task.id}')">刪除</button>
+        `;
+        return div;
     }
 
-    function showAlertModal(task) {
-        const modal = document.getElementById('alert-modal');
-        const daysLeft = document.getElementById('countdown-days').innerText;
-        document.getElementById('modal-countdown').innerText = daysLeft;
-        document.getElementById('modal-title').innerText = `夠鐘溫書啦！(${task.subject})`;
-        
-        modal.style.display = 'flex';
-        startTimer();
-    }
-
-    function startTimer() {
-        clearInterval(timerInterval);
-        timeLeft = 300;
+    window.openCustomTimer = function(minutes) {
+        timeLeft = minutes * 60;
         isTimerRunning = true;
+        document.getElementById('modal-title').innerText = minutes === 5 ? "休息時間 ☕" : "專注溫習計時 ⏱️";
         document.getElementById('pause-btn').innerText = "暫停";
+        document.getElementById('alert-modal').style.display = 'flex';
+        
+        clearInterval(timerInterval);
         updateTimerDisplay();
 
         timerInterval = setInterval(() => {
@@ -520,7 +721,7 @@
                 } else {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
-                    alert("5分鐘專注計時結束！休息時間差不多了，準備好繼續高效溫習了嗎？");
+                    alert("計時結束！做得好好！");
                     closeModal();
                 }
             }
