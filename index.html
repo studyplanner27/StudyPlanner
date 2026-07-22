@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日溫習打卡與專注空間</title>
+    <title>✨每日溫習打卡與專注空間✨</title>
     <style>
         :root {
             --bg-color: #f4f6f8;
@@ -309,8 +309,8 @@
 
 <div id="auth-overlay">
     <div class="auth-box">
-        <h2>每日溫習打卡與專注空間</h2>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">請登入以存取你的雲端空間</p>
+        <h2>✨每日溫習打卡與專注空間✨</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">請登入以開始紀錄～</p>
         
         <input type="email" id="auth-email" placeholder="電子郵件地址">
         <input type="password" id="auth-password" placeholder="密碼 (最少6位)">
@@ -329,8 +329,8 @@
 
 <div class="container" id="main-app" style="display: none;">
     <header>
-        <h1>每日溫習打卡與專注空間</h1>
-        <p>由而家開始奮鬥！DSE開始日： 2027年4月8日！</p>
+        <h1>✨每日溫習打卡與專注空間✨</h1>
+        <p>由而家開始奮鬥！DSE開始日： 2027年4月8日.ᐟ‪‪.ᐟ</p>
         <div style="margin-top: 10px;">
             <span id="user-email-display" style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 10px;"></span>
             <button class="btn btn-accent" style="width: auto; padding: 4px 10px; font-size: 0.8rem; margin-top:0;" onclick="handleLogout()">登出</button>
@@ -339,7 +339,7 @@
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div class="card" id="user-setup-card">
-            <h2>⚙️ 自訂科目設定</h2>
+            <h2>自訂你揀咗嘅科目：</h2>
             <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
                 <input type="text" id="custom-subjects-input" placeholder="例: Chin,Eng,Math,CS,Bio,Geog" value="Chin,Eng,Math,CS,Bio,Geog" style="flex: 1;">
                 <button class="btn" style="width: auto; margin-top:0;" onclick="saveUserSubjectsCloud()">儲存科目</button>
@@ -347,7 +347,7 @@
         </div>
 
         <div class="card" id="password-change-card">
-            <h2>🔒 更改密碼設定</h2>
+            <h2>🔒 更改密碼 ദ്ദി (⩌ᴗ⩌ )</h2>
             <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
                 <input type="password" id="new-password-input" placeholder="新密碼 (最少6位)" style="flex: 1;">
                 <button class="btn btn-accent" style="width: auto; margin-top:0;" onclick="handlePasswordChange()">更新密碼</button>
@@ -357,7 +357,7 @@
 
     <div class="dashboard-grid">
         <div class="card" style="margin-bottom:0;">
-            <h2>距離目標</h2>
+            <h2>距離開考</h2>
             <div class="stat-box" style="margin-top: 15px;">
                 <div class="number" id="countdown-days">--</div>
                 <div>日</div>
@@ -365,7 +365,7 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
-            <h2>今日溫習時數</h2>
+            <h2>今日溫習時數٩(ˊᗜˋ*)و</h2>
             <div class="stat-box" style="margin-top: 15px; background: var(--success-light);">
                 <div class="number" id="today-study-time" style="color: var(--success); font-size: 1.4rem;">0 分鐘</div>
                 <div style="color: var(--text-secondary); font-size: 0.85rem;">專注累積</div>
@@ -373,7 +373,7 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
-            <h2>每日打卡</h2>
+            <h2>每日打卡₍⸍⸌̣ʷ̣̫⸍̣⸌₎</h2>
             <div style="text-align: center; margin-top: 15px;">
                 <button class="btn" id="checkin-btn" onclick="toggleCheckIn()">今日打卡</button>
                 <p id="checkin-status" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary);"></p>
@@ -381,7 +381,7 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
-            <h2>專注計時器</h2>
+            <h2>專注計時器 ฅ(๑ ̀ㅅ ́๑)ฅ</h2>
             <div style="text-align: center; margin-top: 10px;">
                 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
                     <input type="number" id="custom-timer-input" value="25" min="1" max="180" style="text-align: center; padding: 6px;" placeholder="分鐘">
@@ -410,7 +410,7 @@
     </div>
 
     <div class="card">
-        <h2>溫習任務管理</h2>
+        <h2>溫習任務管理٩(๑`^´๑)۶</h2>
         <div class="tasks-container">
             <div class="task-column">
                 <h3>📌 進行中 / 未完成任務 <span id="pending-count" class="tag">0</span></h3>
@@ -425,7 +425,7 @@
 
     <div class="card">
         <div class="calendar-header">
-            <h2 style="margin: 0; border: none;">📅 溫習日曆紀錄</h2>
+            <h2 style="margin: 0; border: none;">📅 溫習日曆紀錄 ( ੭ ˙ᗜ˙ )੭</h2>
             <div style="display: flex; gap: 5px; align-items: center;">
                 <button class="btn" style="margin-top:0; width: auto; padding: 4px 10px; font-size: 0.85rem;" onclick="changeMonth(-1)">◀ 上月</button>
                 <span id="calendar-month-title" style="font-weight: bold; font-size: 1rem; min-width: 90px; text-align: center;"></span>
@@ -448,7 +448,7 @@
 <div id="alert-modal">
     <div class="modal-content">
         <h2 id="modal-title" style="color: var(--accent);">專注計時器</h2>
-        <p id="modal-desc">保持高效，累積微小進步！</p>
+        <p id="modal-desc">積土成山 風雨興焉 積水成淵 蛟龍生焉</p>
         <div class="timer-display" id="timer-display">25:00</div>
         <div style="display: flex; gap: 10px;">
             <button class="btn" id="pause-btn" onclick="toggleTimer()">暫停</button>
@@ -522,7 +522,7 @@
         try {
             await createUserWithEmailAndPassword(auth, email, password);
         } catch (error) {
-            document.getElementById('auth-error').innerText = "註冊失敗: " + error.message;
+            document.getElementById('auth-error').innerText = "喂！ching你個嘢壞咗啊: " + error.message;
         }
     }
 
@@ -532,7 +532,7 @@
         try {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
-            document.getElementById('auth-error').innerText = "登入失敗: " + error.message;
+            document.getElementById('auth-error').innerText = "ching睇嚟你入錯嘢喎: " + error.message;
         }
     }
 
@@ -540,7 +540,7 @@
         try {
             await signInWithPopup(auth, googleProvider);
         } catch (error) {
-            document.getElementById('auth-error').innerText = "Google 登入失敗: " + error.message;
+            document.getElementById('auth-error').innerText = "gg登入唔到Google: " + error.message;
         }
     }
 
@@ -551,7 +551,7 @@
     window.handlePasswordChange = async function() {
         const newPassword = document.getElementById('new-password-input').value.trim();
         if (!newPassword || newPassword.length < 6) {
-            alert("新密碼必須最少有 6 個字元！");
+            alert("新密碼起碼要最少有 6 個位啦");
             return;
         }
 
@@ -559,10 +559,10 @@
         if (user) {
             try {
                 await updatePassword(user, newPassword);
-                alert("密碼已成功更新！下次請使用新密碼登入。");
+                alert("啱啱改咗你個密碼 你記得抄低返( ⁼̴̀ .̫ ⁼̴ )✧");
                 document.getElementById('new-password-input').value = '';
             } catch (error) {
-                alert("密碼更新失敗: " + error.message + " (如果登入咗一段長時間，可能需要重新登入先可以改密碼)");
+                alert("Oh nooo 改唔到密碼 " + error.message + " (如果登入咗一段時間可能要重新登入先可以改密碼)");
             }
         }
     }
@@ -577,9 +577,9 @@
                 updatedAt: new Date().toISOString()
             });
             updateSubjectDropdown(subjectsStr);
-            alert("科目設定已成功同步上雲端！");
+            alert("set咗");
         } catch (e) {
-            console.error("儲存失敗", e);
+            console.error("set唔到再set過laaaaa", e);
         }
     }
 
@@ -591,7 +591,7 @@
                 defaultSubjects = userSnap.data().subjects;
             }
         } catch (e) {
-            console.error("載入設定失敗", e);
+            console.error("load唔到", e);
         }
 
         document.getElementById('custom-subjects-input').value = defaultSubjects;
@@ -657,7 +657,7 @@
             renderTasks();
             renderCalendar();
         } catch (error) {
-            console.error("載入雲端資料失敗: ", error);
+            console.error("load唔到: ", error);
         }
     }
 
@@ -682,7 +682,7 @@
         if (checkIns[todayStr]) {
             btn.innerText = "今日已打卡 ✓";
             btn.disabled = true;
-            status.innerText = "雲端同步成功！";
+            status.innerText = "sync咗";
         } else {
             btn.innerText = "今日打卡";
             btn.disabled = false;
@@ -699,7 +699,7 @@
             checkTodayCheckIn();
             renderCalendar();
         } catch (e) {
-            console.error("打卡同步失敗", e);
+            console.error("sync唔到你打卡sor", e);
         }
     }
 
@@ -799,7 +799,7 @@
             document.getElementById('task-date').value = getTodayString();
             document.getElementById('task-duration').value = 60;
         } catch (e) {
-            console.error("新增計劃失敗", e);
+            console.error("add唔到溫習計劃", e);
         }
     }
 
@@ -814,7 +814,7 @@
             tasks = tasks.map(t => t.id === id ? { ...t, completed: newCompletedStatus } : t);
             renderTasks();
         } catch (e) {
-            console.error("更新任務狀態失敗", e);
+            console.error("更新唔到任務狀態", e);
         }
     }
 
@@ -825,7 +825,7 @@
             tasks = tasks.filter(t => t.id !== id);
             renderTasks();
         } catch (e) {
-            console.error("刪除任務失敗", e);
+            console.error("del唔到溫習任務", e);
         }
     }
 
@@ -878,7 +878,7 @@
     window.startCustomMinutesTimer = function() {
         const inputVal = parseInt(document.getElementById('custom-timer-input').value);
         if (!inputVal || inputVal <= 0) {
-            alert("請輸入有效嘅分鐘數！");
+            alert("請輸入有效嘅分鐘數");
             return;
         }
         openCustomTimer(inputVal);
@@ -904,7 +904,7 @@
                     clearInterval(timerInterval);
                     isTimerRunning = false;
                     recordStudyTime(initialMinutesSet);
-                    alert("計時結束！已自動累積溫習時間！");
+                    alert("計時結束 積善成德 而神明自得 聖心備焉");
                     closeModal();
                 }
             }
@@ -923,7 +923,7 @@
             updateTodayStudyTimeDisplay();
             renderCalendar();
         } catch (e) {
-            console.error("同步溫習時間失敗", e);
+            console.error("sync唔到溫習時間", e);
         }
     }
 
