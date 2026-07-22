@@ -83,7 +83,7 @@
         }
 
         .stat-box .number {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: bold;
             color: var(--primary);
         }
@@ -228,11 +228,58 @@
             margin: 15px 0;
         }
 
-        .history-list {
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 0.9rem;
+        /* 日曆設計樣式 */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+        .calendar-weekday {
+            text-align: center;
+            font-weight: bold;
             color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding-bottom: 5px;
+        }
+        .calendar-day {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            min-height: 75px;
+            padding: 6px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
+        }
+        .calendar-day.today {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .calendar-day.studied {
+            background: var(--success-light);
+            border-color: #a9dfbf;
+        }
+        .calendar-day .day-num {
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        .calendar-day .day-info {
+            font-size: 0.7rem;
+            color: var(--success);
+            font-weight: bold;
+            word-break: break-all;
         }
 
         /* 登入遮罩畫面 */
@@ -318,10 +365,10 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
-            <h2>今日溫習時數 (YPT)</h2>
+            <h2>今日溫習時數</h2>
             <div class="stat-box" style="margin-top: 15px; background: var(--success-light);">
-                <div class="number" id="today-study-time" style="color: var(--success);">0 分鐘</div>
-                <div style="color: var(--text-secondary);">專注累積</div>
+                <div class="number" id="today-study-time" style="color: var(--success); font-size: 1.4rem;">0 分鐘</div>
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">專注累積</div>
             </div>
         </div>
 
@@ -377,8 +424,24 @@
     </div>
 
     <div class="card">
-        <h2>歷史打卡紀錄</h2>
-        <div class="history-list" id="history-list">載入中...</div>
+        <div class="calendar-header">
+            <h2 style="margin: 0; border: none;">📅 溫習日曆紀錄</h2>
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <button class="btn" style="margin-top:0; width: auto; padding: 4px 10px; font-size: 0.85rem;" onclick="changeMonth(-1)">◀ 上月</button>
+                <span id="calendar-month-title" style="font-weight: bold; font-size: 1rem; min-width: 90px; text-align: center;"></span>
+                <button class="btn" style="margin-top:0; width: auto; padding: 4px 10px; font-size: 0.85rem;" onclick="changeMonth(1)">下月 ▶</button>
+            </div>
+        </div>
+        <div class="calendar-grid">
+            <div class="calendar-weekday">日</div>
+            <div class="calendar-weekday">一</div>
+            <div class="calendar-weekday">二</div>
+            <div class="calendar-weekday">三</div>
+            <div class="calendar-weekday">四</div>
+            <div class="calendar-weekday">五</div>
+            <div class="calendar-weekday">六</div>
+        </div>
+        <div class="calendar-grid" id="calendar-days-container" style="margin-top: 6px;"></div>
     </div>
 </div>
 
@@ -420,6 +483,9 @@
     let checkIns = {};
     let studyTimes = {};
     
+    // 日曆顯示專用變數
+    let currentCalendarDate = new Date();
+
     let timerInterval = null;
     let timeLeft = 1500;
     let initialMinutesSet = 25;
@@ -437,7 +503,6 @@
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('user-email-display').innerText = `登入帳戶: ${user.email}`;
                 
-                // 如果是用 Google 登入嘅用戶，隱藏更改密碼專區（因為 Google 帳戶唔需要密碼更改）
                 const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
                 document.getElementById('password-change-card').style.display = isGoogleUser ? 'none' : 'block';
 
@@ -483,7 +548,6 @@
         await signOut(auth);
     }
 
-    // 更改密碼功能
     window.handlePasswordChange = async function() {
         const newPassword = document.getElementById('new-password-input').value.trim();
         if (!newPassword || newPassword.length < 6) {
@@ -591,7 +655,7 @@
             checkTodayCheckIn();
             updateTodayStudyTimeDisplay();
             renderTasks();
-            renderHistory();
+            renderCalendar();
         } catch (error) {
             console.error("載入雲端資料失敗: ", error);
         }
@@ -633,29 +697,70 @@
         try {
             await setDoc(doc(db, "users", currentUserUid, "checkins", todayStr), { checked: true });
             checkTodayCheckIn();
-            renderHistory();
+            renderCalendar();
         } catch (e) {
             console.error("打卡同步失敗", e);
         }
     }
 
-    function renderHistory() {
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        const sortedDates = Object.keys(checkIns).sort().reverse();
-        
-        if (sortedDates.length === 0) {
-            historyList.innerHTML = '<p>暫時未有打卡紀錄，今日開始第一個打卡啦！</p>';
-            return;
+    // 日曆切換月份功能
+    window.changeMonth = function(direction) {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const container = document.getElementById('calendar-days-container');
+        const titleContainer = document.getElementById('calendar-month-title');
+        container.innerHTML = '';
+
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+
+        titleContainer.innerText = `${year}年 ${month + 1}月`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const todayStr = getTodayString();
+
+        // 填充空白日（上個月剩餘空格）
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'calendar-day empty';
+            container.appendChild(emptyDiv);
         }
 
-        sortedDates.forEach(date => {
-            const div = document.createElement('div');
-            div.style.padding = '5px 0';
-            const mins = studyTimes[date] || 0;
-            div.innerHTML = `✅ 日期：<strong>${date}</strong> | 溫習時長：<strong>${mins} 分鐘</strong>`;
-            historyList.appendChild(div);
-        });
+        // 填充今個月每一日
+        for (let day = 1; day <= totalDays; day++) {
+            const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayDiv = document.createElement('div');
+            
+            let classNames = ['calendar-day'];
+            if (dayStr === todayStr) classNames.push('today');
+            
+            const mins = studyTimes[dayStr] || 0;
+            const isChecked = checkIns[dayStr];
+            
+            if (mins > 0 || isChecked) {
+                classNames.push('studied');
+            }
+            
+            dayDiv.className = classNames.join(' ');
+
+            let infoHtml = '';
+            if (isChecked) infoHtml += '✓打卡 ';
+            if (mins > 0) {
+                const h = Math.floor(mins / 60);
+                const m = mins % 60;
+                infoHtml += h > 0 ? `${h}h${m}m` : `${m}m`;
+            }
+
+            dayDiv.innerHTML = `
+                <div class="day-num">${day}</div>
+                <div class="day-info">${infoHtml}</div>
+            `;
+            container.appendChild(dayDiv);
+        }
     }
 
     window.addPlan = async function(event) {
@@ -816,7 +921,7 @@
         try {
             await setDoc(doc(db, "users", currentUserUid, "studyTimes", todayStr), { minutes: newTotalMins });
             updateTodayStudyTimeDisplay();
-            renderHistory();
+            renderCalendar();
         } catch (e) {
             console.error("同步溫習時間失敗", e);
         }
