@@ -67,12 +67,12 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 15px;
         }
 
-        @media(max-width: 800px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
+        @media(max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
         }
 
         .stat-box {
@@ -83,7 +83,7 @@
         }
 
         .stat-box .number {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: var(--primary);
         }
@@ -283,24 +283,34 @@
 <div class="container" id="main-app" style="display: none;">
     <header>
         <h1>每日溫習打卡與專注空間</h1>
-        <p> 由而家開始奮鬥！DSE開始日： 2027年4月8日！</p>
+        <p>雲端同步身份與科目，直達 2027年4月8日！</p>
         <div style="margin-top: 10px;">
             <span id="user-email-display" style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 10px;"></span>
             <button class="btn btn-accent" style="width: auto; padding: 4px 10px; font-size: 0.8rem; margin-top:0;" onclick="handleLogout()">登出</button>
         </div>
     </header>
 
-    <div class="card" id="user-setup-card">
-        <h2>⚙️ 自訂科目設定</h2>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px;">
-            <input type="text" id="custom-subjects-input" placeholder="自訂科目，用逗號隔開 (例: Chin,Eng,Math,CS,Bio,Geog)" value="Chin,Eng,Math,CS,Bio,Geog" style="flex: 1;">
-            <button class="btn" style="width: auto; margin-top:0;" onclick="saveUserSubjectsCloud()">儲存科目設定</button>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="card" id="user-setup-card">
+            <h2>⚙️ 自訂科目設定</h2>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                <input type="text" id="custom-subjects-input" placeholder="例: Chin,Eng,Math,CS,Bio,Geog" value="Chin,Eng,Math,CS,Bio,Geog" style="flex: 1;">
+                <button class="btn" style="width: auto; margin-top:0;" onclick="saveUserSubjectsCloud()">儲存科目</button>
+            </div>
+        </div>
+
+        <div class="card" id="password-change-card">
+            <h2>🔒 更改密碼設定</h2>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                <input type="password" id="new-password-input" placeholder="新密碼 (最少6位)" style="flex: 1;">
+                <button class="btn btn-accent" style="width: auto; margin-top:0;" onclick="handlePasswordChange()">更新密碼</button>
+            </div>
         </div>
     </div>
 
     <div class="dashboard-grid">
         <div class="card" style="margin-bottom:0;">
-            <h2>距離 2027年4月8日</h2>
+            <h2>距離目標</h2>
             <div class="stat-box" style="margin-top: 15px;">
                 <div class="number" id="countdown-days">--</div>
                 <div>日</div>
@@ -308,18 +318,32 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
+            <h2>今日溫習時數 (YPT)</h2>
+            <div class="stat-box" style="margin-top: 15px; background: var(--success-light);">
+                <div class="number" id="today-study-time" style="color: var(--success);">0 分鐘</div>
+                <div style="color: var(--text-secondary);">專注累積</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:0;">
             <h2>每日打卡</h2>
             <div style="text-align: center; margin-top: 15px;">
                 <button class="btn" id="checkin-btn" onclick="toggleCheckIn()">今日打卡</button>
-                <p id="checkin-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);"></p>
+                <p id="checkin-status" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary);"></p>
             </div>
         </div>
 
         <div class="card" style="margin-bottom:0;">
             <h2>專注計時器</h2>
-            <div style="text-align: center; margin-top: 15px; display: flex; gap: 8px;">
-                <button class="btn btn-accent" style="margin-top:0;" onclick="openCustomTimer(25)">25分專注</button>
-                <button class="btn btn-success" style="margin-top:0;" onclick="openCustomTimer(5)">5分休息</button>
+            <div style="text-align: center; margin-top: 10px;">
+                <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                    <input type="number" id="custom-timer-input" value="25" min="1" max="180" style="text-align: center; padding: 6px;" placeholder="分鐘">
+                    <button class="btn btn-accent" style="margin-top:0; width: auto; padding: 6px 10px; font-size: 0.85rem;" onclick="startCustomMinutesTimer()">開始</button>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn" style="margin-top:0; font-size: 0.75rem; padding: 4px;" onclick="openCustomTimer(25)">25分</button>
+                    <button class="btn btn-success" style="margin-top:0; font-size: 0.75rem; padding: 4px;" onclick="openCustomTimer(5)">5分</button>
+                </div>
             </div>
         </div>
     </div>
@@ -372,17 +396,17 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // 🌟 請把你在 Firebase 複製的設定貼在下方取代這幾行 🌟
     const firebaseConfig = {
-          apiKey: "AIzaSyCM-s3IMSyr4q2IJmy074vAL9zd6jdrSR8",
-          authDomain: "studyplanner-9ceb6.firebaseapp.com",
-          projectId: "studyplanner-9ceb6",
-          storageBucket: "studyplanner-9ceb6.firebasestorage.app",
-          messagingSenderId: "157259076638",
-          appId: "1:157259076638:web:6dbfe4b2e4f01534920a0f"
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -394,9 +418,11 @@
     let currentUserUid = null;
     let tasks = [];
     let checkIns = {};
+    let studyTimes = {};
     
     let timerInterval = null;
     let timeLeft = 1500;
+    let initialMinutesSet = 25;
     let isTimerRunning = false;
 
     window.onload = function() {
@@ -404,7 +430,6 @@
         document.getElementById('task-date').value = getTodayString();
         setInterval(updateCountdown, 60000);
 
-        // 監聽用戶登入狀態
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserUid = user.uid;
@@ -412,6 +437,10 @@
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('user-email-display').innerText = `登入帳戶: ${user.email}`;
                 
+                // 如果是用 Google 登入嘅用戶，隱藏更改密碼專區（因為 Google 帳戶唔需要密碼更改）
+                const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+                document.getElementById('password-change-card').style.display = isGoogleUser ? 'none' : 'block';
+
                 await loadUserProfileCloud();
                 await loadDataFromCloud();
             } else {
@@ -422,7 +451,6 @@
         });
     }
 
-    // 帳戶操作
     window.handleSignUp = async function() {
         const email = document.getElementById('auth-email').value.trim();
         const password = document.getElementById('auth-password').value.trim();
@@ -455,7 +483,26 @@
         await signOut(auth);
     }
 
-    // 儲存與載入用戶設定 (每個用戶獨立路徑)
+    // 更改密碼功能
+    window.handlePasswordChange = async function() {
+        const newPassword = document.getElementById('new-password-input').value.trim();
+        if (!newPassword || newPassword.length < 6) {
+            alert("新密碼必須最少有 6 個字元！");
+            return;
+        }
+
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                await updatePassword(user, newPassword);
+                alert("密碼已成功更新！下次請使用新密碼登入。");
+                document.getElementById('new-password-input').value = '';
+            } catch (error) {
+                alert("密碼更新失敗: " + error.message + " (如果登入咗一段長時間，可能需要重新登入先可以改密碼)");
+            }
+        }
+    }
+
     window.saveUserSubjectsCloud = async function() {
         if (!currentUserUid) return;
         const subjectsStr = document.getElementById('custom-subjects-input').value.trim() || "Chin,Eng,Math";
@@ -520,7 +567,6 @@
         return `${year}-${month}-${day}`;
     }
 
-    // 資料讀取與同步 (使用子集合令每個用戶擁有自己獨立嘅 tasks 同 checkins)
     async function loadDataFromCloud() {
         if (!currentUserUid) return;
         try {
@@ -536,12 +582,32 @@
                 checkIns[doc.id] = doc.data().checked;
             });
 
+            const timeSnapshot = await getDocs(collection(db, "users", currentUserUid, "studyTimes"));
+            studyTimes = {};
+            timeSnapshot.forEach((doc) => {
+                studyTimes[doc.id] = doc.data().minutes || 0;
+            });
+
             checkTodayCheckIn();
+            updateTodayStudyTimeDisplay();
             renderTasks();
             renderHistory();
         } catch (error) {
             console.error("載入雲端資料失敗: ", error);
         }
+    }
+
+    function updateTodayStudyTimeDisplay() {
+        const todayStr = getTodayString();
+        const mins = studyTimes[todayStr] || 0;
+        const hours = Math.floor(mins / 60);
+        const remainingMins = mins % 60;
+        
+        let displayStr = `${mins} 分鐘`;
+        if (hours > 0) {
+            displayStr = `${hours} 小時 ${remainingMins} 分鐘`;
+        }
+        document.getElementById('today-study-time').innerText = displayStr;
     }
 
     function checkTodayCheckIn() {
@@ -552,11 +618,11 @@
         if (checkIns[todayStr]) {
             btn.innerText = "今日已打卡 ✓";
             btn.disabled = true;
-            status.innerText = "做得好！雲端同步成功，繼續保持。";
+            status.innerText = "雲端同步成功！";
         } else {
             btn.innerText = "今日打卡";
             btn.disabled = false;
-            status.innerText = "今日仲未打卡，快啲開始溫書啦！";
+            status.innerText = "今日仲未打卡";
         }
     }
 
@@ -586,7 +652,8 @@
         sortedDates.forEach(date => {
             const div = document.createElement('div');
             div.style.padding = '5px 0';
-            div.innerHTML = `✅ 打卡成功日期：<strong>${date}</strong>`;
+            const mins = studyTimes[date] || 0;
+            div.innerHTML = `✅ 日期：<strong>${date}</strong> | 溫習時長：<strong>${mins} 分鐘</strong>`;
             historyList.appendChild(div);
         });
     }
@@ -703,10 +770,20 @@
         return div;
     }
 
+    window.startCustomMinutesTimer = function() {
+        const inputVal = parseInt(document.getElementById('custom-timer-input').value);
+        if (!inputVal || inputVal <= 0) {
+            alert("請輸入有效嘅分鐘數！");
+            return;
+        }
+        openCustomTimer(inputVal);
+    }
+
     window.openCustomTimer = function(minutes) {
+        initialMinutesSet = minutes;
         timeLeft = minutes * 60;
         isTimerRunning = true;
-        document.getElementById('modal-title').innerText = minutes === 5 ? "休息時間 ☕" : "專注溫習計時 ⏱️";
+        document.getElementById('modal-title').innerText = minutes === 5 ? "休息時間 ☕" : `專注溫習計時 (${minutes}分鐘) ⏱️`;
         document.getElementById('pause-btn').innerText = "暫停";
         document.getElementById('alert-modal').style.display = 'flex';
         
@@ -721,11 +798,28 @@
                 } else {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
-                    alert("計時結束！做得好好！");
+                    recordStudyTime(initialMinutesSet);
+                    alert("計時結束！已自動累積溫習時間！");
                     closeModal();
                 }
             }
         }, 1000);
+    }
+
+    async function recordStudyTime(mins) {
+        if (!currentUserUid) return;
+        const todayStr = getTodayString();
+        const currentMins = studyTimes[todayStr] || 0;
+        const newTotalMins = currentMins + mins;
+        studyTimes[todayStr] = newTotalMins;
+
+        try {
+            await setDoc(doc(db, "users", currentUserUid, "studyTimes", todayStr), { minutes: newTotalMins });
+            updateTodayStudyTimeDisplay();
+            renderHistory();
+        } catch (e) {
+            console.error("同步溫習時間失敗", e);
+        }
     }
 
     window.toggleTimer = function() {
