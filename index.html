@@ -357,7 +357,7 @@
 
     <div class="dashboard-grid">
         <div class="card" style="margin-bottom:0;">
-            <h2>距離開考</h2>
+            <h2>距離開考( ᐛ )</h2>
             <div class="stat-box" style="margin-top: 15px;">
                 <div class="number" id="countdown-days">--</div>
                 <div>日</div>
@@ -373,7 +373,7 @@
         </div>
 
         <div class="card" style="margin-bottom:0;">
-            <h2>每日打卡₍⸍⸌̣ʷ̣̫⸍̣⸌₎</h2>
+            <h2>每日打卡 ^⑉･-･⑉^ ੭</h2>
             <div style="text-align: center; margin-top: 15px;">
                 <button class="btn" id="checkin-btn" onclick="toggleCheckIn()">今日打卡</button>
                 <p id="checkin-status" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary);"></p>
@@ -682,7 +682,7 @@
         if (checkIns[todayStr]) {
             btn.innerText = "今日已打卡 ✓";
             btn.disabled = true;
-            status.innerText = "sync咗";
+            status.innerText = "record咗";
         } else {
             btn.innerText = "今日打卡";
             btn.disabled = false;
@@ -699,7 +699,7 @@
             checkTodayCheckIn();
             renderCalendar();
         } catch (e) {
-            console.error("sync唔到你打卡sor", e);
+            console.error("record唔到你打卡sor", e);
         }
     }
 
