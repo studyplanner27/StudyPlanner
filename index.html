@@ -632,33 +632,52 @@
     }
 
     async function loadDataFromCloud() {
-        if (!currentUserUid) return;
-        try {
-            const taskSnapshot = await getDocs(collection(db, "users", currentUserUid, "tasks"));
-            tasks = [];
-            taskSnapshot.forEach((doc) => {
-                tasks.push({ id: doc.id, ...doc.data() });
-            });
-
-            const checkinSnapshot = await getDocs(collection(db, "users", currentUserUid, "checkins"));
-            checkIns = {};
-            checkinSnapshot.forEach((doc) => {
-                checkIns[doc.id] = doc.data().checked;
-            });
-
-            const timeSnapshot = await getDocs(collection(db, "users", currentUserUid, "studyTimes"));
-            studyTimes = {};
-            timeSnapshot.forEach((doc) => {
-                studyTimes[doc.id] = doc.data().minutes || 0;
-            });
-
-            checkTodayCheckIn();
-            updateTodayStudyTimeDisplay();
-            renderTasks();
-            renderCalendar();
-        } catch (error) {
-            console.error("load唔到: ", error);
+    if (!currentUserUid) return;
+    try {
+        // 1. 載入任務並自動清除惡搞訊息
+        const taskSnapshot = await getDocs(collection(db, "users", currentUserUid, "tasks"));
+        tasks = [];
+        for (const docSnap of taskSnapshot.docs) {
+            const taskData = docSnap.data();
+            const taskId = docSnap.id;
+            
+            // 🛑 自動檢查是否含有黑客留下的惡搞字眼
+            const isHacked = (taskData.detail && (taskData.detail.includes("系統資訊") || taskData.detail.includes("hacked"))) ||
+                             (taskData.subject && taskData.subject.includes("全體廣播"));
+                             
+            if (isHacked) {
+                // 如果發現係惡搞訊息，直接喺雲端永久刪除
+                await deleteDoc(doc(db, "users", currentUserUid, "tasks", taskId));
+                console.log("已自動清除惡搞任務:", taskId);
+            } else {
+                tasks.push({ id: taskId, ...taskData });
+            }
         }
+
+        // 2. 載入打卡紀錄
+        const checkinSnapshot = await getDocs(collection(db, "users", currentUserUid, "checkIns"));
+        checkIns = {};
+        checkinSnapshot.forEach((doc) => {
+            checkIns[doc.id] = doc.data().completed || false;
+        });
+
+        // 3. 載入專注時數
+        const timeSnapshot = await getDocs(collection(db, "users", currentUserUid, "studyTimes"));
+        studyTimes = {};
+        timeSnapshot.forEach((doc) => {
+            studyTimes[doc.id] = doc.data().minutes || 0;
+        });
+
+        // 4. 更新畫面顯示
+        checkTodayCheckIn();
+        updateTodayStudyTimeDisplay();
+        renderTasks();
+        renderCalendar();
+        
+    } catch (error) {
+        console.error("load唔到: ", error);
+    }
+}
     }
 
     function updateTodayStudyTimeDisplay() {
