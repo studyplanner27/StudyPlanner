@@ -631,7 +631,7 @@
         return `${year}-${month}-${day}`;
     }
 
-    async function loadDataFromCloud() {
+async function loadDataFromCloud() {
     if (!currentUserUid) return;
     try {
         // 1. 載入任務並自動清除惡搞訊息
@@ -641,12 +641,11 @@
             const taskData = docSnap.data();
             const taskId = docSnap.id;
             
-            // 🛑 自動檢查是否含有黑客留下的惡搞字眼
+            // 自動檢查是否含有黑客留下的惡搞字眼
             const isHacked = (taskData.detail && (taskData.detail.includes("系統資訊") || taskData.detail.includes("hacked"))) ||
                              (taskData.subject && taskData.subject.includes("全體廣播"));
                              
             if (isHacked) {
-                // 如果發現係惡搞訊息，直接喺雲端永久刪除
                 await deleteDoc(doc(db, "users", currentUserUid, "tasks", taskId));
                 console.log("已自動清除惡搞任務:", taskId);
             } else {
@@ -677,6 +676,7 @@
     } catch (error) {
         console.error("load唔到: ", error);
     }
+}
     function updateTodayStudyTimeDisplay() {
         const todayStr = getTodayString();
         const mins = studyTimes[todayStr] || 0;
