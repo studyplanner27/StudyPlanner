@@ -677,6 +677,19 @@ async function loadDataFromCloud() {
         console.error("load唔到: ", error);
     }
 }
+
+function updateTodayStudyTimeDisplay() {
+    const todayStr = getTodayString();
+    const mins = studyTimes[todayStr] || 0;
+    const hours = Math.floor(mins / 60);
+    const remainingMins = mins % 60;
+
+    let displayStr = `${mins} 分鐘`;
+    if (hours > 0) {
+        displayStr = `${hours} 小時 ${remainingMins} 分鐘`;
+    }
+    document.getElementById('today-study-time').innerText = displayStr;
+}
     function updateTodayStudyTimeDisplay() {
         const todayStr = getTodayString();
         const mins = studyTimes[todayStr] || 0;
